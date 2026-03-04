@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id         String   @id @default(uuid())
+  name       Name
+  created_at DateTime @default(now())
+  blocks     Block[]
+}
+
+model Block {
+  id          String               @id @default(uuid())
+  category_id String               @default(uuid())
+  name        String
+  category    Category             @relation(fields: [category_id], references: [id])
+  blockType   BlockType            @default(NORMAL)
+  ac          Boolean              @default(false)
+  bedType     String               @default("normal")
+  sharing     Int[]
+  images      BlockImage[]
+  washroom    BlockWashroomImage[]
+  review      Reviews[]
+  rooms       Room[]
+}
+
+model BlockImage {
+  id         String   @id @default(uuid())
+  block_id   String   @default(uuid())
+  image_url  String   @unique
+  created_at DateTime @default(now())
+  block      Block    @relation(fields: [block_id], references: [id])
+}
+
+model Room {
+  id                 String      @id @default(uuid())
+  block_id           String      @default(uuid())
+  room_type          RoomType
+  ac_type            AC
+  bed_type           Bed
+  bed_length_cm      Int
+  bed_width_cm       Int
+  cupboard_height_cm Int
+  cupboard_width_cm  Int
+  table_length_cm    Int
+  table_width_cm     Int
+  price              Decimal?
+  created_at         DateTime    @default(now())
+  table_image        String
+  cupboard_image     String
+  bed_image          BedImage[]
+  block              Block       @relation(fields: [block_id], references: [id])
+  images             RoomImage[]
+}
+
+model RoomImage {
+  id         String   @id @default(uuid())
+  room_id    String   @default(uuid())
+  image_url  String   @unique
+  created_at DateTime @default(now())
+  room       Room     @relation(fields: [room_id], references: [id])
+}
+
+model Reviews {
+  id       String @id @default(uuid())
+  block_id String
+  block    Block  @relation(fields: [block_id], references: [id])
+}
+
+model BlockWashroomImage {
+  id         String    @id @default(uuid())
+  block_id   String
+  image_type ImageType
+  image_url  String    @unique
+  created_at DateTime  @default(now())
+  block      Block     @relation(fields: [block_id], references: [id])
+}
+
+model BedImage {
+  id         String   @id @default(uuid())
+  room_id    String   @default(uuid())
+  image_url  String   @unique
+  created_at DateTime @default(now())
+  room       Room     @relation(fields: [room_id], references: [id])
+}
+
+model Mess {
+  id          String      @id
+  name        String
+  block_id    String
+  mess_type   MessType
+  description String?
+  timing      String?
+  created_at  DateTime    @default(now())
+  updated_at  DateTime
+  MessImage   MessImage[]
+}
+
+model MessImage {
+  id         String   @id
+  mess_id    String
+  image_url  String   @unique
+  created_at DateTime @default(now())
+  Mess       Mess     @relation(fields: [mess_id], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id         String   @id
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime
+  role       String
+}
+
+model Feedback {
+  id         String   @id @default(uuid())
+  page       String
+  response   String
+  created_at DateTime @default(now())
+}
+
+enum Name {
+  MEN
+  WOMEN
+}
+
+enum BlockType {
+  NORMAL
+  APARTMENT
+  DELUXE
+}
+
+enum RoomType {
+  TWO_BED
+  THREE_BED
+  FOUR_BED
+  SIX_BED
+  ONE_BED
+}
+
+enum AC {
+  AC
+  NON_AC
+}
+
+enum Bed {
+  BUNK_BED
+  NORMAL
+}
+
+enum ImageType {
+  TOILET
+  BATHING
+}
+
+enum MessType {
+  VEG
+  NON_VEG
+  SPECIAL
+}

@@ -1,0 +1,163 @@
+import * as React from  react;
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from @/components/ui/dropdown-menu;
+import { Search, SlidersHorizontal } from lucide-react;
+
+export type FilterState = {
+  ac: boolean | null;
+  sharing: number[];
+  bedType: string[];
+  blockType: string[];
+  search: string;
+};
+
+type FilterProps = {
+  filter: FilterState;
+  setFilter: (filter: FilterState) => void;
+};
+
+const sharingOptions = [1, 2, 3, 4, 6];
+const bedTypes = [bunker, normal];
+const blockTypes = [deluxe, apartment, normal];
+
+export default function Filter({ filter, setFilter }: FilterProps) {
+  return (
+    <div className=flex w-full flex-wrap items-center gap-3>
+      <div className=relative min-w-[240px] flex-1>
+        <Search className=absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 />
+        <input
+          type=text
+          placeholder=Search Block Name
+          value={filter.search}
+          onChange={(e) => setFilter({ ...filter, search: e.target.value })}
+          className=w-full rounded-full border border-neutral-800 bg-neutral-900/80 px-4 py-3 pl-10 text-sm text-white shadow-inner outline-none ring-1 ring-transparent transition focus:border-neutral-600 focus:ring-neutral-700
+        />
+      </div>
+
+      <div className=flex flex-wrap items-center gap-2>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className=rounded-full border border-neutral-800 bg-neutral-900/80 px-4 py-2 text-sm text-white transition hover:border-neutral-600>
+              {filter.blockType.length === 0
+                ? Block Type
+                : filter.blockType
+                    .map((t) => t[0].toUpperCase() + t.slice(1))
+                    .join( )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className= min-w-[160px]>
+            {blockTypes.map((type) => (
+              <DropdownMenuCheckboxItem
+                key={type}
+                checked={filter.blockType.includes(type)}
+                onCheckedChange={(checked) => {
+                  setFilter({
+                    ...filter,
+                    blockType: checked
+                      ? [...filter.blockType, type]
+                      : filter.blockType.filter((t) => t !== type),
+                  });
+                }}
+              >
+                {type[0].toUpperCase() + type.slice(1)}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className=rounded-full border border-neutral-800 bg-neutral-900/80 px-4 py-2 text-sm text-white transition hover:border-neutral-600>
+              {filter.ac === null ? AC Type : filter.ac ? AC : Non-AC}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className=min-w-[160px]>
+            <DropdownMenuRadioGroup
+              value={filter.ac === null ? any : filter.ac ? ac : non-ac}
+              onValueChange={(value) => {
+                setFilter({
+                  ...filter,
+                  ac:
+                    value === any ? null : value === ac ? true : false,
+                });
+              }}
+            >
+              <DropdownMenuRadioItem value=any>Any</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value=ac>AC</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value=non-ac>Non-AC</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className=rounded-full border border-neutral-800 bg-neutral-900/80 px-4 py-2 text-sm text-white transition hover:border-neutral-600>
+              {filter.sharing.length === 0
+                ? Sharing
+                : filter.sharing.sort().join( ) +  -Sharing}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className=min-w-[160px]>
+            {sharingOptions.map((num) => (
+              <DropdownMenuCheckboxItem
+                key={num}
+                checked={filter.sharing.includes(num)}
+                onCheckedChange={(checked) => {
+                  setFilter({
+                    ...filter,
+                    sharing: checked
+                      ? [...filter.sharing, num]
+                      : filter.sharing.filter((n) => n !== num),
+                  });
+                }}
+              >
+                {num}-Sharing
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className=rounded-full border border-neutral-800 bg-neutral-900/80 px-4 py-2 text-sm text-white transition hover:border-neutral-600>
+              {filter.bedType.length === 0
+                ? Bed Type
+                : filter.bedType
+                    .map((t) => t[0].toUpperCase() + t.slice(1))
+                    .join( )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className= min-w-[160px]>
+            {bedTypes.map((type) => (
+              <DropdownMenuCheckboxItem
+                key={type}
+                checked={filter.bedType.includes(type)}
+                onCheckedChange={(checked) => {
+                  setFilter({
+                    ...filter,
+                    bedType: checked
+                      ? [...filter.bedType, type]
+                      : filter.bedType.filter((t) => t !== type),
+                  });
+                }}
+              >
+                {type[0].toUpperCase() + type.slice(1)}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className=flex h-10 w-10 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/80 text-neutral-200 shadow-inner>
+          <SlidersHorizontal className=h-4 w-4 />
+        </div>
+      </div>
+    </div>
+  );
+}
+
