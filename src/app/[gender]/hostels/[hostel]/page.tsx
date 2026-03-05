@@ -148,9 +148,9 @@ export default function HostelDetails() {
         {blockTitle}
       </h1>
       <div className="flex items-center my-3 gap-2">
-        <Badge className="flex items-center gap-1 bg-green-500 hover:bg-green-600 rounded-full">
+        {/* <Badge className="flex items-center gap-1 bg-green-500 hover:bg-green-600 rounded-full">
           <span className="text-xs">4.9</span>
-        </Badge>
+        </Badge> */}
         <Badge className="bg-neutral-800 text-white rounded-full">AC</Badge>
         <Badge className="bg-neutral-800 text-white rounded-full">Non-AC</Badge>
       </div>

@@ -4,6 +4,19 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+function getJwtSecret() {
+    if (process.env.JWT_SECRET) {
+        return process.env.JWT_SECRET;
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+        console.warn("JWT_SECRET is missing. Using development fallback secret.");
+        return "dev-only-jwt-secret-change-me";
+    }
+
+    return null;
+}
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -22,7 +35,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }
 
-        if (!process.env.JWT_SECRET) {
+        const jwtSecret = getJwtSecret();
+        if (!jwtSecret) {
             console.error("❌ Missing JWT_SECRET in environment variables");
             return NextResponse.json(
                 { error: "Server config missing. Contact admin." },
@@ -33,7 +47,7 @@ export async function POST(req: Request) {
 
         const token = jwt.sign(
             { email: user.email },
-            process.env.JWT_SECRET,
+            jwtSecret,
             { expiresIn: "1d" }
         );
 
@@ -42,10 +56,13 @@ export async function POST(req: Request) {
             status: 200
         });
 
-        response.headers.set(
-            "Set-Cookie",
-            `token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`
-        );
+        response.cookies.set("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            maxAge: 60 * 60 * 24,
+        });
 
         return response
 

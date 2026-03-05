@@ -4,17 +4,17 @@ import HostelCard from "@/components/HostelCard";
 import Filter, { FilterState } from "@/components/filter";
 import { Navbar } from "@/components/navbar";
 import { GridSkeleton } from "@/components/skeleton";
+import { StaticImageData } from "next/image";
 
-const FALLBACK_IMAGE_URL =
-	"https://vit.ac.in/wp-content/uploads/2025/03/327A0201-copy-1024x683.webp";
+const FALLBACK_IMAGE_URL = "/fallback.png";
 
 type HostelApiBlock = {
 	name: string;
-	image?: { image_url?: string } | null;
+	image?: { image_url?: string } | null | StaticImageData;
 	ac?: boolean;
-	sharing?: number[];
-	bedType?: string[];
-	blockType?: string; // received from server (lowercase)
+	sharing?: number[] | number | null;
+	bedType?: string[] | string | null;
+	blockType?: string;
 };
 
 type HostelCardData = {
@@ -25,6 +25,45 @@ type HostelCardData = {
 	bedType: string[];
 	blockType: string;
 };
+
+function normalizeBedTypeValue(value: string): "bunker" | "normal" | null {
+	const normalized = value
+		.trim()
+		.toLowerCase()
+		.replace(/[-\s]+/g, "_");
+	if (
+		normalized === "bunker" ||
+		normalized === "bunk_bed" ||
+		normalized === "bunk"
+	) {
+		return "bunker";
+	}
+	if (
+		normalized === "normal" ||
+		normalized === "non_bunker" ||
+		normalized === "non_bunk" ||
+		normalized === "non_bed"
+	) {
+		return "normal";
+	}
+	return null;
+}
+
+function normalizeBedTypeList(
+	value: HostelApiBlock["bedType"],
+): Array<"bunker" | "normal"> {
+	const rawValues = Array.isArray(value)
+		? value
+		: typeof value === "string"
+			? [value]
+			: [];
+
+	const canonicalValues = rawValues
+		.map((entry) => normalizeBedTypeValue(entry))
+		.filter((entry): entry is "bunker" | "normal" => entry !== null);
+
+	return Array.from(new Set(canonicalValues));
+}
 
 export default function HostelList({
 	params,
@@ -74,14 +113,23 @@ export default function HostelList({
 					? (data as HostelApiBlock[])
 							.map((block) => ({
 								name: block.name,
-								image: block.image?.image_url || FALLBACK_IMAGE_URL,
+								image:
+									block.image &&
+									typeof block.image === "object" &&
+									"image_url" in block.image
+										? ((block.image as { image_url?: string }).image_url ??
+											FALLBACK_IMAGE_URL)
+										: FALLBACK_IMAGE_URL,
 								ac: block.ac ?? false,
-								sharing: block.sharing ?? [],
-								bedType: block.bedType ?? [],
-								// make sure the value is lowercase to match UI expectations
-								blockType: block.blockType
-									? block.blockType.toLowerCase()
-									: block.name,
+								sharing: Array.isArray(block.sharing)
+									? block.sharing.filter(
+											(value): value is number => typeof value === "number",
+										)
+									: typeof block.sharing === "number"
+										? [block.sharing]
+										: [],
+								bedType: normalizeBedTypeList(block.bedType),
+								blockType: block.blockType ?? block.name,
 							}))
 							.sort((a, b) => a.name.localeCompare(b.name))
 					: [];
@@ -109,13 +157,20 @@ export default function HostelList({
 	}, [gender]);
 
 	const filteredHostels = hostels.filter((hostel) => {
+		const hostelSharing = Array.isArray(hostel.sharing) ? hostel.sharing : [];
+		const hostelBedType = (Array.isArray(hostel.bedType) ? hostel.bedType : [])
+			.map((value) => normalizeBedTypeValue(value))
+			.filter((value): value is "bunker" | "normal" => value !== null);
+		const selectedBedTypes = filter.bedType
+			.map((value) => normalizeBedTypeValue(value))
+			.filter((value): value is "bunker" | "normal" => value !== null);
 		const acMatch = filter.ac === null || hostel.ac === filter.ac;
 		const sharingMatch =
 			filter.sharing.length === 0 ||
-			hostel.sharing.some((s) => filter.sharing.includes(s));
+			hostelSharing.some((s) => filter.sharing.includes(s));
 		const bedTypeMatch =
-			filter.bedType.length === 0 ||
-			hostel.bedType.some((b) => filter.bedType.includes(b));
+			selectedBedTypes.length === 0 ||
+			hostelBedType.some((b) => selectedBedTypes.includes(b));
 		const blockTypeMatch =
 			filter.blockType.length === 0 ||
 			filter.blockType.includes(hostel.blockType);
@@ -191,6 +246,7 @@ export default function HostelList({
 								gender={gender}
 								name={hostel.name}
 								image={hostel.image}
+								ac={hostel.ac}
 							/>
 						))}
 					</div>

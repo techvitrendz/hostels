@@ -129,7 +129,7 @@ export function RoomAvailability({ roomType, showFilter = true }: RoomAvailabili
                   fill
                   className="object-cover"
                 />
-                <span className="absolute top-2 right-2 px-2 py-1 text-[10px] rounded-full bg-green-500 text-white">open</span>
+                {/* <span className="absolute top-2 right-2 px-2 py-1 text-[10px] rounded-full bg-green-500 text-white">open</span> */}
               </div>
 
               {/* Content */}
@@ -139,9 +139,9 @@ export function RoomAvailability({ roomType, showFilter = true }: RoomAvailabili
                     <h3 className="text-sm md:text-base font-semibold">{room.type}</h3>
                     <p className="text-xs md:text-sm text-neutral-400">₹{room.price?.nonAc || room.price?.ac || "—"}/sem</p>
                   </div>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">
+                  {/* <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">
                     ★ <span>4.3</span>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="mt-2 flex items-center gap-2">
@@ -165,7 +165,7 @@ export function RoomAvailability({ roomType, showFilter = true }: RoomAvailabili
                   </Link>
                   <Link
                     href={`/${room.gender}/hostels/${room.block.toLowerCase()}/${room.type.toLowerCase()}`}
-                    className="text-xs text-neutral-500 hover:text-neutral-300"
+                    className="px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                   >
                     Know More
                   </Link>

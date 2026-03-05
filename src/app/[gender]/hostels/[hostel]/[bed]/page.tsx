@@ -24,6 +24,8 @@ const Bed = ({
   const [roomData, setRoomData] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const imageSrc = roomData[0]?.image?.image_url || FALLBACK_IMAGE_URL;
 
   useEffect(() => {
     setLoading(true);
@@ -45,6 +47,12 @@ const Bed = ({
       });
   }, [gender, hostel, bed]);
 
+  useEffect(() => {
+    if (!loading && !error && roomData.length > 0) {
+      setIsImageLoading(true);
+    }
+  }, [imageSrc, loading, error, roomData.length]);
+
   if (loading) return (
     <>
       <Navbar />
@@ -65,8 +73,6 @@ const Bed = ({
       </>
     );
 
-  const room = roomData[0]; // showing first room as main
-
   return (
     <>
       <Navbar />
@@ -85,14 +91,24 @@ const Bed = ({
 
 
           {/* Main Image */}
-          <div className="relative w-full h-[450px] rounded-xl mb-6 overflow-hidden">
+          <div className="relative w-full aspect-[4/3] rounded-xl mb-6 overflow-hidden">
+            {isImageLoading && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-900/80">
+                <div className="flex items-center gap-3 text-sm text-neutral-200">
+                  <span className="h-4 w-4 rounded-full border-2 border-neutral-400 border-t-transparent animate-spin" />
+                  Loading image...
+                </div>
+              </div>
+            )}
             <Image
-              src={room.image?.image_url || FALLBACK_IMAGE_URL}
+              src={imageSrc}
               alt="Room"
-              fill
+              width={4032}
+              height={3024}
               unoptimized
-              sizes="(max-width: 768px) 100vw, 1200px"
-              className="object-cover"
+              className="w-full h-full object-cover"
+              onLoad={() => setIsImageLoading(false)}
+              onError={() => setIsImageLoading(false)}
             />
           </div>
 

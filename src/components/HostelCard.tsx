@@ -5,13 +5,14 @@ export default function HostelCard({
 	gender,
 	name,
 	image,
+	ac,
 }: {
 	gender: string;
 	name: string;
 	image: string;
+	ac: boolean
 }) {
-	const hasAC = true;
-	const hasNonAC = true;
+	const hasAC = ac
 
 	return (
 		<Link
@@ -29,19 +30,19 @@ export default function HostelCard({
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 						className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
 					/>
-					
+
 					{/* AC/Non-AC Badges on Image */}
 					<div className="absolute bottom-3 left-3 flex gap-2">
-						{hasAC && (
+						{(hasAC && (
 							<span className="px-3 py-1 bg-black/70 backdrop-blur-sm text-white text-xs rounded-full">
 								AC
 							</span>
-						)}
-						{hasNonAC && (
-							<span className="px-3 py-1 bg-black/70 backdrop-blur-sm text-white text-xs rounded-full">
-								Non-AC
-							</span>
-						)}
+						)) ||
+							!hasAC && (
+								<span className="px-3 py-1 bg-black/70 backdrop-blur-sm text-white text-xs rounded-full">
+									Non-AC
+								</span>
+							)}
 					</div>
 				</div>
 
@@ -59,7 +60,7 @@ export default function HostelCard({
 								{priceRange}
 							</p> */}
 						</div>
-						
+
 						{/* Rating Badge
 						<div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
 							rating >= 4 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'

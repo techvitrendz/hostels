@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
 import { Navbar } from "@/components/navbar";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Analytics } from "@vercel/analytics/next";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -61,7 +60,6 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<Analytics />
 					<Navbar />
 					{children}
 				</ThemeProvider>
@@ -74,6 +72,8 @@ export default function RootLayout({
 	}
 
 	return (
-		<ClerkProvider publishableKey={publishableKey}>{appContent}</ClerkProvider>
+		<ClerkProvider publishableKey={publishableKey}>
+			{appContent}
+		</ClerkProvider>
 	);
 }

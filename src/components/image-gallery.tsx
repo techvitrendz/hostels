@@ -7,7 +7,7 @@ interface ImageGalleryProps {
   images: { src: string; alt: string }[];
 }
 
-const FALLBACK_IMAGE_URL = "https://vit.ac.in/wp-content/uploads/2025/03/327A0201-copy-1024x683.webp";
+const FALLBACK_IMAGE_URL = "/fallback.png";
 
 export function ImageGallery({ images }: ImageGalleryProps) {
   if (!images || images.length === 0) {
