@@ -8,6 +8,29 @@ import { StaticImageData } from "next/image";
 
 const FALLBACK_IMAGE_URL = "/fallback.png";
 
+// Request deduplication map to prevent duplicate API calls
+const requestCache = new Map<string, Promise<unknown>>();
+
+async function fetchWithDedup(url: string): Promise<unknown> {
+	if (requestCache.has(url)) {
+		return requestCache.get(url);
+	}
+
+	const promise = fetch(url).then((res) => {
+		if (!res.ok) throw new Error(`API error: ${res.status}`);
+		return res.json();
+	});
+
+	requestCache.set(url, promise);
+
+	// Clean up cache after request completes
+	promise.finally(() => {
+		requestCache.delete(url);
+	});
+
+	return promise;
+}
+
 type HostelApiBlock = {
 	name: string;
 	image?: { image_url?: string } | null | StaticImageData;
@@ -89,24 +112,9 @@ export default function HostelList({
 			setLoading(true);
 			setError(null);
 			try {
-				const response = await fetch(
-					`/api/queryMaster?category=${gender.toUpperCase()}&type=hostelList`,
-				);
+				const url = `/api/queryMaster?category=${gender.toUpperCase()}&type=hostelList`;
+				const data = await fetchWithDedup(url);
 
-				if (!response.ok) {
-					let apiMessage = "Failed to load hostels";
-					try {
-						const errorData = await response.json();
-						if (errorData?.error) {
-							apiMessage = errorData.error;
-						}
-					} catch {
-						// no-op: keep fallback message
-					}
-					throw new Error(apiMessage);
-				}
-
-				const data = await response.json();
 				if (cancelled) return;
 
 				const normalizedHostels: HostelCardData[] = Array.isArray(data)
